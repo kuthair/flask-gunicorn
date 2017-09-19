@@ -1,8 +1,9 @@
 import multiprocessing
-import gunicorn.app.base
-import flask.cli
-import click
 import os
+
+import click
+import flask.cli
+import gunicorn.app.base
 from gunicorn.six import iteritems
 from werkzeug.debug import DebuggedApplication
 
@@ -78,9 +79,7 @@ class GunicornStandalone(gunicorn.app.base.BaseApplication):
 @click.option('--worker_class', '-wc', default=None, help="Specify a custom class of worker to use")
 @flask.cli.pass_script_info
 def cli(info, host, port, reload, debugger, workers, worker_class):
-
     os.environ['FLASK_RUN_FROM_CLI_SERVER'] = '1'
-    debug = flask.cli.get_debug_flag()
 
     port = port or server_port()
     host = host or server_bind_address()
@@ -94,6 +93,7 @@ def cli(info, host, port, reload, debugger, workers, worker_class):
         options["worker_class"] = worker_class
 
     app = info.load_app()
+    debug = flask.cli.get_debug_flag() or app.debug
 
     if debug or debugger:
         options["workers"] = 1
